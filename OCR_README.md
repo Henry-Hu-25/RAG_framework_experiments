@@ -1,51 +1,43 @@
 # OCR Framework Experiment
 
-This repository contains experiments testing OCR (Optical Character Recognition) capabilities using the Mistral OCR API.
+OCR_testing.ipynb tests the Optical Character Recognition capabilities of the Mistral OCR, the SOTA OCR model, with an emphasis of their viability for PDF content extraction for RAG.  
 
-## PDF Collection Summary
+## PDF Collection Description
 
 The collection includes 5 PDF files with varying content types to test the OCR system's capabilities:
 
-1. **empty_graph.pdf** - A PDF containing an empty graph or chart with minimal text content.
-2. **screenshot_text_and_image.pdf** - A PDF with a screenshot containing both text and image elements.
-3. **complex_graph.pdf** - A PDF with a complex graph/chart visualization.
-4. **syllabus.pdf** - A PDF of a university course syllabus with structured text content.
-5. **table.pdf** - A PDF containing tabular data.
-
-These files were selected to test the OCR system's ability to handle different content types including plain text, tables, charts, and mixed content.
+1. **empty_graph.pdf** - an empty graph or chart with minimal text content.
+2. **screenshot_text_and_image.pdf** - screenshot containing both text and backgroundimage elements.
+3. **complex_graph.pdf** - complex graph/chart visualization.
+4. **syllabus.pdf** - a university course syllabus with structured text content and tables.
+5. **table.pdf** - tabular data.
 
 ## OCR Experiment Results
 
-The OCR experiments were conducted using the Mistral OCR API. The results show varying degrees of success depending on the content type:
+1. **empty_graph.pdf**: The OCR system returned empty content, correctly identifying that there was no meaningful text to extract. **However**, the model did not return the image content, making it problematic for RAG.
 
-### Text Extraction Results
 
-1. **empty_graph.pdf**: The OCR system returned empty content, correctly identifying that there was no meaningful text to extract.
-
-2. **screenshot_text_and_image.pdf**: Successfully extracted the text content:
+2. **screenshot_text_and_image.pdf**: Successfully extracted the text content in the image:
    ```
    # Sample our Education Journals 
    
    >> Sign in here to start your access to the latest two volumes for 14 days
    ```
+   **However**, the model did not capture the key visual content, such as the logo in the upper right corner. This selective capture of content poses a challenge for RAG, as some user queries regarding the graphic components of the image may not be answered.
 
-3. **complex_graph.pdf**: The OCR system identified and preserved the image content from the graph, returning it as a base64-encoded image. This suggests that while it may not extract text from complex visualizations, it can identify and preserve them as images.
+3. **complex_graph.pdf**: The OCR system successfully identified and preserved the graph content, returning it as a base64-encoded image, while not returning the text content within the graph. It seems like the model categorizes content as either text or image. 
 
 4. **syllabus.pdf**: Successfully extracted extensive text content from the syllabus, including headings, bullet points, and structured information about the course. The formatting and hierarchical structure of the text was well-preserved.
 
-5. **table.pdf**: Not fully demonstrated in the notebook output, but based on other examples, the OCR system likely attempted to extract tabular content.
+5. **table.pdf**: The OCR system successfully extracted tabular content.
 
-### OCR Limitations and Challenges
+## Conclusion
+### Pros
+1. The Mistral OCR model is a powerful tool for extracting text. It does a good job of handling hiearchy, structure and tabular content. It also offers flexiblity in input format, including PDFs and PNGs. 
+2. It's fast and inexpensive (1,000 pages for $1), making it ideal for text-based PDFs.
+### Cons
+1. Its performance is not as stable for images. It might skip graphics altogether, or opt to return text content within a graphic while ignoring key visual content. 
+2. It categorizes content as either text or image, making it tricky to retain both the image and its text content for RAG embeddings. 
 
-1. When working with the OCR response data, there was an issue with accessing the response as an object versus as a dictionary. This was evidenced by the error:
-   ```
-   AttributeError: 'dict' object has no attribute 'pages'
-   ```
-   
-   This indicates that the response format needs to be handled carefully, either by converting dictionary responses to the expected OCRResponse object type or by modifying code to handle both object and dictionary formats.
+In conclusion, the Mistral OCR model is a powerful tool for text extraction for RAG, and works well with predominantly text-based documents. However, it requires help from other tools for image-heavy content.
 
-2. The system appears more successful with structured text content (like the syllabus) than with extracting text from charts and graphs.
-
-3. For image-heavy content, the system correctly identifies and preserves images rather than trying to extract text from them.
-
-Overall, the Mistral OCR API demonstrates good capabilities for text extraction from standard documents, with appropriate handling of images and non-text content. The API returns both the extracted text in markdown format as well as images encountered during processing, making it suitable for a variety of document analysis tasks.
