@@ -1,20 +1,15 @@
 # Chunking Experiments
 
-This document describes the experiments conducted in `chunking.ipynb` that test different configuration settings of the Chunkr API for document processing and chunking in a Retrieval-Augmented Generation (RAG) context.
+This document describes the experiments conducted in `chunking.ipynb` document processing and chunking in a Retrieval-Augmented Generation (RAG) context.
+Tools used: Chunkr API, LangChain 
 
 ## Testing Material
 
-The experiments used a collection of 5 PDF files with varying content types to test the chunking capabilities:
+The experiments used a **syllabus.pdf** - A university course syllabus with structured text content and tables.
+In past RAG attempts, we had challenges in chunking the syllabus, especially for content that belongs to the same section sematically but is separated by a page break. (see example Weeks 2-4:  SQL Language on page 2) 
 
-1. **empty_graph.pdf** - An empty graph or chart with minimal text content.
-2. **screenshot_text_and_image.pdf** - Screenshot containing both text and background image elements.
-3. **complex_graph.pdf** - Complex graph/chart visualizations.
-4. **syllabus.pdf** - A university course syllabus with structured text content and tables.
-5. **table.pdf** - Tabular data.
 
-These files represent different document types and formats commonly encountered in RAG applications, allowing for comprehensive testing of the chunking system's capabilities with diverse content.
-
-## Experiments
+## Chunkr API Experiments
 
 ### Experiment 1: Highest Performance Configuration
 
@@ -24,8 +19,6 @@ This experiment used a configuration optimized for the highest performance accor
 - Layout analysis as the segmentation strategy
 - LLM-based generation for all segment types (Captions, Footnotes, ListItems, Page, PageFooter, PageHeader, Pictures, SectionHeader, Text, Title)
 
-This approach aims for maximum accuracy and quality in document processing but might be slower and more resource-intensive.
-
 ### Experiment 2: Selective Content Processing
 
 This experiment modified the configuration to:
@@ -33,9 +26,7 @@ This experiment modified the configuration to:
 - Ignore headers and footers
 - Enable image summarization
 
-This configuration focuses on the main content of documents while providing summaries of images, potentially offering a better balance between processing speed and content quality.
-
-### Experiment 3: Performance-Optimized Configuration
+### Experiment 3: Speed-Optimized Configuration
 
 This experiment further adjusted the configuration for faster processing:
 
@@ -43,15 +34,14 @@ This experiment further adjusted the configuration for faster processing:
 - Enable image summarization
 - Use faster output with heuristics (AUTO strategy)
 
-This configuration prioritizes processing speed by using heuristic-based approaches rather than full LLM processing for certain content types, potentially trading some quality for improved performance.
+## Chunkr API Conclusion
+### Pros
+1. **Element Recognition**: Chunkr API recognizes the different elements of a document, including text, images, captions, tables, and headers/footers, etc. making its output more flexible than a SOTA OCR model. 
+2. **Visualization**: Users are able to view the chunks on the Chunkr UI. 
 
-## Applications
+### Cons
+1. **Chunking Performance**: We found some chunks to be too small and not semantically meaningful on their own (for example, a chunk contained only the headers). In addition, the challenge of chunking content that belongs to the same section semantically but is separated by a page break was not addressed. 
+2. **Speed**: Chunkr API is relatively slow. Even with speed-optimized configuration, it takes 20 seconds to chunk a 9 page document. 
+3. **Cost**: The cost of using Chunkr API is high. As of 3/25/2025, the starter plan sits at $50/month for 5000 pages ($0.01 per page). 
 
-These experiments help understand the tradeoffs between different chunking configurations in a RAG system, particularly how different settings affect:
-
-- Content extraction quality
-- Processing speed
-- Handling of different document elements (text, images, tables, etc.)
-- Resource utilization
-
-The findings can guide the selection of appropriate chunking strategies based on specific use case requirements, document types, and resource constraints.
+Overall, Chunkr API's chunking performance did not meet our use case requirements. 
